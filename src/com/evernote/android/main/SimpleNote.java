@@ -1,4 +1,4 @@
-package com.evernote.android.sample;
+package com.evernote.android.main;
 
 import java.util.List;
 

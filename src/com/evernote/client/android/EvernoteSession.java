@@ -25,6 +25,8 @@
  */
 package com.evernote.client.android;
 
+import java.util.Locale;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -37,9 +39,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import com.evernote.client.oauth.EvernoteAuthToken;
 
-import java.util.Locale;
+import com.evernote.client.oauth.EvernoteAuthToken;
 
 /**
  * Represents a session with the Evernote web service API. Used to authenticate

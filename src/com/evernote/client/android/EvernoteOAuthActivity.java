@@ -53,7 +53,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import com.evernote.android.sample.R;
+import com.evernote.android.main.R;
 import com.evernote.client.oauth.EvernoteAuthToken;
 import com.evernote.client.oauth.YinxiangApi;
 import com.evernote.edam.userstore.BootstrapInfo;
