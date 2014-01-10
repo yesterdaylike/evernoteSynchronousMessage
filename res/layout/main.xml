@@ -1,38 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-    <ListView
-        android:layout_height="0dip"
-        android:layout_weight="1"
-        android:layout_width="match_parent"
-        android:id="@+id/list" />
-
-    <LinearLayout
+    <Button
+        android:id="@+id/sync"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom"
-        android:gravity="center"
-        android:background="#cccccccc"
-        android:padding="3dp">
+        android:onClick="onSyncClick"
+        android:text="sync message" />
 
-        <Button
-            android:id="@+id/login"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:text="@string/label_login"
-            android:onClick="login"
-            android:layout_weight="1" />
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onLogoutClick"
+        android:text="@string/label_logout" />
 
-        <Button
-            android:id="@+id/logout"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:text="@string/label_logout"
-            android:onClick="logout"
-            android:layout_weight="1" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/darker_gray" />
+
 </LinearLayout>

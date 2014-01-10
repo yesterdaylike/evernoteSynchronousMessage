@@ -3,15 +3,17 @@ package com.evernote.android.main;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.TextView;
 
 import com.evernote.client.android.EvernoteSession;
+import com.evernote.client.android.EvernoteUtil;
 import com.evernote.client.android.InvalidAuthenticationException;
+import com.evernote.client.android.OnClientCallback;
+import com.evernote.edam.type.Note;
+import com.evernote.thrift.transport.TTransportException;
 
 /**
  * This simple Android app demonstrates how to integrate with the
@@ -24,13 +26,14 @@ public class MainActivity extends ParentActivity {
 	private static final String LOGTAG = "MainActivity";
 
 	// UI elements that we update
-	private Button mLoginButton;
+	//private Button mLoginButton;
 	private Button mLogoutButton;
-	private ListView mListView;
-	private ArrayAdapter mAdapter;
+	private TextView mMessageTextView;
+	//private ListView mListView;
+	//private ArrayAdapter mAdapter;
 
 	//Listener to act on clicks
-	private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
+	/*private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			switch(position) {
@@ -44,7 +47,7 @@ public class MainActivity extends ParentActivity {
 				startActivity(new Intent(getApplicationContext(), SearchNotes.class));
 			}
 		}
-	};
+	};*/
 
 	/**
 	 * Called when the activity is first created.
@@ -54,8 +57,12 @@ public class MainActivity extends ParentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		mLoginButton = (Button) findViewById(R.id.login);
+		login();
 		mLogoutButton = (Button) findViewById(R.id.logout);
+		mMessageTextView = (TextView) findViewById(R.id.message);
+		mMessageTextView.append("login...");
+		/*mLoginButton = (Button) findViewById(R.id.login);
+
 		mListView = (ListView) findViewById(R.id.list);
 		mAdapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1,
@@ -63,7 +70,7 @@ public class MainActivity extends ParentActivity {
 				getResources().getStringArray(R.array.esdk__main_list));
 
 		mListView.setAdapter(mAdapter);
-		mListView.setOnItemClickListener(mItemClickListener);
+		mListView.setOnItemClickListener(mItemClickListener);*/
 	}
 
 	@Override
@@ -77,13 +84,13 @@ public class MainActivity extends ParentActivity {
 	 */
 	private void updateAuthUi() {
 		//show login button if logged out
-		mLoginButton.setEnabled(!mEvernoteSession.isLoggedIn());
+		//mLoginButton.setEnabled(!mEvernoteSession.isLoggedIn());
 
 		//Show logout button if logged in
-		//    mLogoutButton.setEnabled(mEvernoteSession.isLoggedIn());
+		mLogoutButton.setEnabled(mEvernoteSession.isLoggedIn());
 
 		//disable clickable elements until logged in
-		mListView.setEnabled(mEvernoteSession.isLoggedIn());
+		//mListView.setEnabled(mEvernoteSession.isLoggedIn());
 	}
 
 	/**
@@ -91,7 +98,7 @@ public class MainActivity extends ParentActivity {
 	 * Initiates the Evernote OAuth process
 	 */
 
-	public void login(View view) {
+	public void login() {
 		mEvernoteSession.authenticate(this);
 	}
 
@@ -99,13 +106,21 @@ public class MainActivity extends ParentActivity {
 	 * Called when the user taps the "Log in to Evernote" button.
 	 * Clears Evernote Session and logs out
 	 */
-	public void logout(View view) {
+	public void onLogoutClick(View view) {
 		try {
 			mEvernoteSession.logOut(this);
 		} catch (InvalidAuthenticationException e) {
-			Log.e(LOGTAG, "Tried to call logout with not logged in", e);
+			mMessageTextView.append("Tried to call logout with not logged in");
+			mMessageTextView.append(e.getMessage());
 		}
 		updateAuthUi();
+	}
+
+	public void onSyncClick(View view) {
+		mMessageTextView.append("onSyncClick");
+		String contect = SMS.getSmsInPhone(this);
+		mMessageTextView.append("contect:"+contect);
+		saveNote(contect);
 	}
 
 	/**
@@ -121,6 +136,39 @@ public class MainActivity extends ParentActivity {
 				updateAuthUi();
 			}
 			break;
+		}
+	}
+
+	public void saveNote(String content) {
+		String title = "SMS";
+		if (TextUtils.isEmpty(title) || TextUtils.isEmpty(content)) {
+			mMessageTextView.append(getString(R.string.empty_content_error));
+		}
+
+		mMessageTextView.append("contect:"+content);
+
+		Note note = new Note();
+		note.setTitle(title);
+
+		//TODO: line breaks need to be converted to render in ENML
+		note.setContent(EvernoteUtil.NOTE_PREFIX + content + EvernoteUtil.NOTE_SUFFIX);
+
+		try {
+			mEvernoteSession.getClientFactory().createNoteStoreClient().createNote(note, new OnClientCallback<Note>() {
+				@Override
+				public void onSuccess(Note data) {
+					mMessageTextView.append(getString(R.string.note_saved));
+				}
+
+				@Override
+				public void onException(Exception exception) {
+					mMessageTextView.append("Error saving note");
+					mMessageTextView.append(exception.getMessage());
+				}
+			});
+		} catch (TTransportException exception) {
+			mMessageTextView.append("Error creating notestore");
+			mMessageTextView.append(exception.getMessage());
 		}
 	}
 }
